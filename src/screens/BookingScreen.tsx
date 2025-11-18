@@ -7,6 +7,7 @@ import { useAccessibility } from '../context/AccessibilityContext';
 import MapViewComponent from '../components/MapViewComponent';
 import AccessibilityOptions from '../components/AccessibilityOptions';
 import DriverCard from '../components/DriverCard';
+import { FirebaseService } from '../services/firebaseService';
 
 type BookingScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Booking'>;
 
@@ -15,22 +16,6 @@ interface Props {
 }
 
 const { height } = Dimensions.get('window');
-
-// Mock driver data
-const MOCK_DRIVER: Driver = {
-  id: '1',
-  name: 'Michael Chen',
-  photo: 'https://i.pravatar.cc/150?img=12',
-  rating: 4.9,
-  vehicle: {
-    make: 'Toyota',
-    model: 'Sienna',
-    color: 'Silver',
-    plate: 'ABC 1234',
-  },
-  location: { latitude: 37.78925, longitude: -122.4314 },
-  eta: 3,
-};
 
 export default function BookingScreen({ navigation }: Props) {
   const { getFontSize, getColor, highContrast } = useAccessibility();
@@ -53,18 +38,38 @@ export default function BookingScreen({ navigation }: Props) {
   
   const [isSearching, setIsSearching] = useState(false);
   const [driver, setDriver] = useState<Driver | null>(null);
-  
+  const [rideId, setRideId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
   const fadeAnim = useState(new Animated.Value(0))[0];
   const scaleAnim = useState(new Animated.Value(0.9))[0];
 
-  const handleFindDriver = () => {
+  const handleFindDriver = async () => {
     setIsSearching(true);
-    
-    // Simulate driver search
-    setTimeout(() => {
-      setDriver(MOCK_DRIVER);
+    setError(null);
+
+    try {
+      const accessibilityOptions: string[] = [];
+      if (wheelchair) accessibilityOptions.push('wheelchair');
+      if (assistance) accessibilityOptions.push('assistance');
+      accessibilityOptions.push(entrySide);
+
+      const result = await FirebaseService.bookRide({
+        pickupLocation: pickup,
+        dropoffLocation: dropoff,
+        accessibilityOptions,
+      });
+
+      setRideId(result.rideId);
+
+      // Get ride details to check for driver
+      const rideDetails = await FirebaseService.getRide(result.rideId);
+      if (rideDetails && rideDetails.driver) {
+        setDriver(rideDetails.driver);
+      }
+
       setIsSearching(false);
-      
+
       // Animate driver card appearance
       Animated.parallel([
         Animated.timing(fadeAnim, {
@@ -79,14 +84,17 @@ export default function BookingScreen({ navigation }: Props) {
           useNativeDriver: true,
         }),
       ]).start();
-    }, 2500);
+    } catch (err: any) {
+      setIsSearching(false);
+      setError(err.message || 'Failed to book ride');
+    }
   };
 
   const handleStartTrip = () => {
-    if (!driver) return;
-    
+    if (!driver || !rideId) return;
+
     const ride: Ride = {
-      id: '1',
+      id: rideId,
       pickup,
       dropoff,
       driver,
@@ -96,9 +104,9 @@ export default function BookingScreen({ navigation }: Props) {
         entrySide,
         assistance,
       },
-      fare: 15.50,
+      fare: estimatedFare,
     };
-    
+
     navigation.navigate('Trip', { ride });
   };
 
@@ -199,6 +207,16 @@ export default function BookingScreen({ navigation }: Props) {
             </Text>
             <Text style={[styles.searchingSubtext, { fontSize: getFontSize(14), color: getColor('#6B7280', '#000') }]}>
               Matching you with an accessible vehicle
+            </Text>
+          </View>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <View style={styles.errorContainer}>
+            <Ionicons name="alert-circle" size={24} color="#EF4444" />
+            <Text style={[styles.errorText, { fontSize: getFontSize(16) }]}>
+              {error}
             </Text>
           </View>
         )}
@@ -390,6 +408,17 @@ const styles = StyleSheet.create({
   },
   searchingSubtext: {
     marginTop: 4,
+  },
+  errorContainer: {
+    alignItems: 'center',
+    paddingVertical: 16,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  errorText: {
+    color: '#EF4444',
+    fontWeight: '600',
   },
   driverFoundContainer: {
     marginVertical: 8,

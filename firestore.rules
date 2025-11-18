@@ -3,20 +3,26 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // Users collection: Allow authenticated users to read and write only their own documents
-    // This ensures user privacy and prevents unauthorized access to other users' data
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Rides collection: Basic rules for future use
-    // Currently allows authenticated users to read and write rides
-    // In production, consider more granular permissions based on user roles (e.g., drivers vs passengers)
-    match /rides/{rideId} {
-      allow read, write: if request.auth != null;
+    // Drivers collection: Allow authenticated drivers to read and write their own documents
+    match /drivers/{driverId} {
+      allow read, write: if request.auth != null && request.auth.uid == driverId;
     }
 
-    // Default deny rule for any other collections not explicitly defined
-    // This is a security best practice to prevent accidental data exposure
+    // Rides collection: Allow authenticated users to create rides, drivers to update status
+    match /rides/{rideId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null;
+      allow update: if request.auth != null && 
+        (request.auth.uid == resource.data.passengerId || 
+         request.auth.uid == resource.data.driverId);
+      allow delete: if request.auth != null && request.auth.uid == resource.data.passengerId;
+    }
+
+    // Default deny rule
     match /{document=**} {
       allow read, write: if false;
     }

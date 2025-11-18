@@ -1,0 +1,108 @@
+[debug] [2025-11-18T11:50:57.280Z] ----------------------------------------------------------------------
+[debug] [2025-11-18T11:50:57.289Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\DELLL\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only functions
+[debug] [2025-11-18T11:50:57.290Z] CLI Version:   14.25.0
+[debug] [2025-11-18T11:50:57.291Z] Platform:      win32
+[debug] [2025-11-18T11:50:57.292Z] Node Version:  v22.13.0
+[debug] [2025-11-18T11:50:57.292Z] Time:          Tue Nov 18 2025 12:50:57 GMT+0100 (West Africa Standard Time)
+[debug] [2025-11-18T11:50:57.293Z] ----------------------------------------------------------------------
+[debug] 
+[error] 
+[error] Error: Cannot understand what targets to deploy/serve. No targets in firebase.json match '--only functions'. If you are using PowerShell make sure you place quotes around any comma-separated lists (ex: --only "functions,firestore").
+[debug] [2025-11-18T11:52:37.931Z] ----------------------------------------------------------------------
+[debug] [2025-11-18T11:52:37.935Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\DELLL\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only functions
+[debug] [2025-11-18T11:52:37.936Z] CLI Version:   14.25.0
+[debug] [2025-11-18T11:52:37.936Z] Platform:      win32
+[debug] [2025-11-18T11:52:37.936Z] Node Version:  v22.13.0
+[debug] [2025-11-18T11:52:37.937Z] Time:          Tue Nov 18 2025 12:52:37 GMT+0100 (West Africa Standard Time)
+[debug] [2025-11-18T11:52:37.937Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-11-18T11:52:38.305Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-11-18T11:52:38.306Z] > authorizing via signed-in user (marvellousabiola08@gmail.com)
+[debug] [2025-11-18T11:52:38.307Z] [iam] checking project helpbus-b7124 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2025-11-18T11:52:38.309Z] Checked if tokens are valid: false, expires at: 1763465529283
+[debug] [2025-11-18T11:52:38.309Z] Checked if tokens are valid: false, expires at: 1763465529283
+[debug] [2025-11-18T11:52:38.310Z] > refreshing access token with scopes: []
+[debug] [2025-11-18T11:52:38.318Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-11-18T11:52:38.319Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-11-18T11:52:39.129Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-11-18T11:52:39.129Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-11-18T11:52:39.261Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/helpbus-b7124:testIamPermissions [none]
+[debug] [2025-11-18T11:52:39.261Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/helpbus-b7124:testIamPermissions x-goog-quota-user=projects/helpbus-b7124
+[debug] [2025-11-18T11:52:39.262Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/helpbus-b7124:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2025-11-18T11:52:40.664Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/helpbus-b7124:testIamPermissions 200
+[debug] [2025-11-18T11:52:40.664Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/helpbus-b7124:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2025-11-18T11:52:40.665Z] Checked if tokens are valid: true, expires at: 1763470358130
+[debug] [2025-11-18T11:52:40.665Z] Checked if tokens are valid: true, expires at: 1763470358130
+[debug] [2025-11-18T11:52:40.665Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/helpbus-b7124/serviceAccounts/helpbus-b7124@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2025-11-18T11:52:40.665Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/helpbus-b7124/serviceAccounts/helpbus-b7124@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2025-11-18T11:52:42.053Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/helpbus-b7124/serviceAccounts/helpbus-b7124@appspot.gserviceaccount.com:testIamPermissions 404
+[debug] [2025-11-18T11:52:42.054Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/helpbus-b7124/serviceAccounts/helpbus-b7124@appspot.gserviceaccount.com:testIamPermissions {"error":{"code":404,"message":"Unknown service account","status":"NOT_FOUND"}}
+[debug] [2025-11-18T11:52:42.054Z] [functions] service account IAM check errored, deploy may fail: Request to https://iam.googleapis.com/v1/projects/helpbus-b7124/serviceAccounts/helpbus-b7124@appspot.gserviceaccount.com:testIamPermissions had HTTP Error: 404, Unknown service account {"name":"FirebaseError","children":[],"context":{"body":{"error":{"code":404,"message":"Unknown service account","status":"NOT_FOUND"}},"response":{"statusCode":404}},"exit":1,"message":"Request to https://iam.googleapis.com/v1/projects/helpbus-b7124/serviceAccounts/helpbus-b7124@appspot.gserviceaccount.com:testIamPermissions had HTTP Error: 404, Unknown service account","status":404}
+[info] 
+[info] === Deploying to 'helpbus-b7124'...
+[info] 
+[info] i  deploying functions 
+[debug] [2025-11-18T11:52:42.060Z] Checked if tokens are valid: true, expires at: 1763470358130
+[debug] [2025-11-18T11:52:42.060Z] Checked if tokens are valid: true, expires at: 1763470358130
+[debug] [2025-11-18T11:52:42.060Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/cloudresourcemanager.googleapis.com [none]
+[debug] [2025-11-18T11:52:42.060Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/cloudresourcemanager.googleapis.com x-goog-quota-user=projects/helpbus-b7124
+[debug] [2025-11-18T11:52:43.453Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/cloudresourcemanager.googleapis.com 200
+[debug] [2025-11-18T11:52:43.453Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/cloudresourcemanager.googleapis.com [omitted]
+[debug] [2025-11-18T11:52:43.510Z] Checked if tokens are valid: true, expires at: 1763470358130
+[debug] [2025-11-18T11:52:43.510Z] Checked if tokens are valid: true, expires at: 1763470358130
+[debug] [2025-11-18T11:52:43.511Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/helpbus-b7124 [none]
+[debug] [2025-11-18T11:52:43.818Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/helpbus-b7124 200
+[debug] [2025-11-18T11:52:43.818Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/helpbus-b7124 {"projectNumber":"403297118118","projectId":"helpbus-b7124","lifecycleState":"ACTIVE","name":"Helpbus","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-11-18T09:42:38.738106Z"}
+[info] i  functions: preparing codebase default for deployment 
+[info] i  functions: ensuring required API cloudfunctions.googleapis.com is enabled... 
+[debug] [2025-11-18T11:52:43.820Z] Checked if tokens are valid: true, expires at: 1763470358130
+[debug] [2025-11-18T11:52:43.820Z] Checked if tokens are valid: true, expires at: 1763470358130
+[debug] [2025-11-18T11:52:43.820Z] Checked if tokens are valid: true, expires at: 1763470358130
+[debug] [2025-11-18T11:52:43.820Z] Checked if tokens are valid: true, expires at: 1763470358130
+[info] i  functions: ensuring required API cloudbuild.googleapis.com is enabled... 
+[debug] [2025-11-18T11:52:43.821Z] Checked if tokens are valid: true, expires at: 1763470358130
+[debug] [2025-11-18T11:52:43.821Z] Checked if tokens are valid: true, expires at: 1763470358130
+[info] i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled... 
+[debug] [2025-11-18T11:52:43.821Z] Checked if tokens are valid: true, expires at: 1763470358130
+[debug] [2025-11-18T11:52:43.822Z] Checked if tokens are valid: true, expires at: 1763470358130
+[debug] [2025-11-18T11:52:43.822Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-11-18T11:52:43.822Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/helpbus-b7124
+[debug] [2025-11-18T11:52:43.823Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/runtimeconfig.googleapis.com [none]
+[debug] [2025-11-18T11:52:43.823Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/runtimeconfig.googleapis.com x-goog-quota-user=projects/helpbus-b7124
+[debug] [2025-11-18T11:52:43.826Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/cloudbuild.googleapis.com [none]
+[debug] [2025-11-18T11:52:43.826Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/cloudbuild.googleapis.com x-goog-quota-user=projects/helpbus-b7124
+[debug] [2025-11-18T11:52:43.829Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/artifactregistry.googleapis.com [none]
+[debug] [2025-11-18T11:52:43.829Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/artifactregistry.googleapis.com x-goog-quota-user=projects/helpbus-b7124
+[debug] [2025-11-18T11:52:44.615Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/cloudbuild.googleapis.com 200
+[debug] [2025-11-18T11:52:44.615Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/cloudbuild.googleapis.com [omitted]
+[warn] !  functions: missing required API cloudbuild.googleapis.com. Enabling now... 
+[debug] [2025-11-18T11:52:44.616Z] Checked if tokens are valid: true, expires at: 1763470358130
+[debug] [2025-11-18T11:52:44.616Z] Checked if tokens are valid: true, expires at: 1763470358130
+[debug] [2025-11-18T11:52:44.616Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/cloudbuild.googleapis.com:enable [none]
+[debug] [2025-11-18T11:52:44.616Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/cloudbuild.googleapis.com:enable x-goog-quota-user=projects/helpbus-b7124
+[debug] [2025-11-18T11:52:44.866Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/cloudfunctions.googleapis.com 200
+[debug] [2025-11-18T11:52:44.866Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/cloudfunctions.googleapis.com [omitted]
+[warn] !  functions: missing required API cloudfunctions.googleapis.com. Enabling now... 
+[debug] [2025-11-18T11:52:44.867Z] Checked if tokens are valid: true, expires at: 1763470358130
+[debug] [2025-11-18T11:52:44.867Z] Checked if tokens are valid: true, expires at: 1763470358130
+[debug] [2025-11-18T11:52:44.867Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/cloudfunctions.googleapis.com:enable [none]
+[debug] [2025-11-18T11:52:44.867Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/cloudfunctions.googleapis.com:enable x-goog-quota-user=projects/helpbus-b7124
+[debug] [2025-11-18T11:52:45.066Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/artifactregistry.googleapis.com 200
+[debug] [2025-11-18T11:52:45.067Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/artifactregistry.googleapis.com [omitted]
+[warn] !  artifactregistry: missing required API artifactregistry.googleapis.com. Enabling now... 
+[debug] [2025-11-18T11:52:45.067Z] Checked if tokens are valid: true, expires at: 1763470358130
+[debug] [2025-11-18T11:52:45.067Z] Checked if tokens are valid: true, expires at: 1763470358130
+[debug] [2025-11-18T11:52:45.067Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/artifactregistry.googleapis.com:enable [none]
+[debug] [2025-11-18T11:52:45.067Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/artifactregistry.googleapis.com:enable x-goog-quota-user=projects/helpbus-b7124
+[debug] [2025-11-18T11:52:45.169Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/runtimeconfig.googleapis.com 200
+[debug] [2025-11-18T11:52:45.169Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/runtimeconfig.googleapis.com [omitted]
+[debug] [2025-11-18T11:52:45.523Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/artifactregistry.googleapis.com:enable 400
+[debug] [2025-11-18T11:52:45.524Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/artifactregistry.googleapis.com:enable [omitted]
+[debug] [2025-11-18T11:52:45.571Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/cloudfunctions.googleapis.com:enable 200
+[debug] [2025-11-18T11:52:45.571Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/cloudfunctions.googleapis.com:enable [omitted]
+[debug] [2025-11-18T11:52:45.710Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/cloudbuild.googleapis.com:enable 400
+[debug] [2025-11-18T11:52:45.711Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/helpbus-b7124/services/cloudbuild.googleapis.com:enable [omitted]
+[error] 
+[error] Error: Your project helpbus-b7124 must be on the Blaze (pay-as-you-go) plan to complete this command. Required API artifactregistry.googleapis.com can't be enabled until the upgrade is complete. To upgrade, visit the following URL:
+
+https://console.firebase.google.com/project/helpbus-b7124/usage/details
