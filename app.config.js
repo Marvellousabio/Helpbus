@@ -5,10 +5,14 @@ export default {
     name: "AccessibleTransportSystem",
     slug: "accessible-transport-system",
     version: "1.0.0",
+    projectId: "539082f4-4a98-42cb-9616-e7d606f100c0",
     android: {
       package: "com.anonymous.accessibletransportsystem"
     },
     extra: {
+      eas: {
+        projectId: "539082f4-4a98-42cb-9616-e7d606f100c0"
+      },
       firebase: {
         apiKey: process.env.FIREBASE_API_KEY,
         authDomain: process.env.FIREBASE_AUTH_DOMAIN,

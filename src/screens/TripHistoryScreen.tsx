@@ -14,15 +14,17 @@ interface Props {
 }
 
 export default function TripHistoryScreen({ navigation }: Props) {
-  const { getFontSize, getColor, highContrast } = useAccessibility();
-  const { user } = useAuth();
-  const [trips, setTrips] = useState<Ride[]>([]);
-  const [loading, setLoading] = useState(true);
+   const { getFontSize, getColor, highContrast } = useAccessibility();
+   const { user } = useAuth();
+   const [trips, setTrips] = useState<Ride[]>([]);
+   const [loading, setLoading] = useState(true);
+   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchHistory = async () => {
       if (!user) return;
       try {
+        setError(null);
         const history = await FirebaseService.getRideHistory(user.id);
         // Convert to Ride format
         const rideHistory: Ride[] = history.map(item => ({
@@ -40,6 +42,7 @@ export default function TripHistoryScreen({ navigation }: Props) {
         setTrips(rideHistory);
       } catch (error) {
         console.error('Error fetching ride history:', error);
+        setError('Failed to load ride history. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -71,6 +74,22 @@ export default function TripHistoryScreen({ navigation }: Props) {
       <View style={styles.container}>
         <ActivityIndicator size="large" color="#4F46E5" />
         <Text style={{ marginTop: 16, fontSize: getFontSize(16) }}>Loading trip history...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.emptyContainer}>
+          <Ionicons name="alert-circle" size={64} color="#EF4444" />
+          <Text style={[styles.emptyText, { fontSize: getFontSize(18), color: '#EF4444' }]}>
+            Error Loading History
+          </Text>
+          <Text style={[styles.emptySubtext, { fontSize: getFontSize(14), color: getColor('#9CA3AF', '#999') }]}>
+            {error}
+          </Text>
+        </View>
       </View>
     );
   }

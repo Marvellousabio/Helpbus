@@ -63,6 +63,7 @@ export default function BookingScreen({ navigation }: Props) {
    const [searchQuery, setSearchQuery] = useState('');
    const [searchResults, setSearchResults] = useState<GeoapifyResult[]>([]);
    const [loadingSearch, setLoadingSearch] = useState(false);
+   const [searchError, setSearchError] = useState<string | null>(null);
    const [recentLocations, setRecentLocations] = useState<GeoapifyResult[]>([]);
    const [nearbySuggestions, setNearbySuggestions] = useState<GeoapifyResult[]>([]);
    const [currentLocation, setCurrentLocation] = useState<{ latitude: number; longitude: number } | null>(null);
@@ -136,17 +137,30 @@ export default function BookingScreen({ navigation }: Props) {
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       if (searchQuery.length >= 3) {
+        if (!GEOAPIFY_API_KEY) {
+          setSearchError('Search API key not configured');
+          setSearchResults([]);
+          setLoadingSearch(false);
+          return;
+        }
         console.log('API Key present:', !!GEOAPIFY_API_KEY);
         setLoadingSearch(true);
+        setSearchError(null);
         const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(searchQuery)}&limit=5&apiKey=${GEOAPIFY_API_KEY}`;
         console.log('Fetching from URL:', url);
         fetch(url)
           .then(response => {
             console.log('Response status:', response.status);
+            if (!response.ok) {
+              throw new Error(`API request failed: ${response.status}`);
+            }
             return response.json();
           })
           .then(data => {
             console.log('API data:', data);
+            if (data.error) {
+              throw new Error(data.error.message || 'API returned an error');
+            }
             const results = data.features?.map((f: any) => ({
         lat: f.geometry.coordinates[1],
         lon: f.geometry.coordinates[0],
@@ -157,6 +171,7 @@ export default function BookingScreen({ navigation }: Props) {
           })
           .catch(err => {
             console.error('Geoapify search error:', err);
+            setSearchError(err.message || 'Failed to search locations');
             setSearchResults([]);
           })
           .finally(() => {
@@ -165,6 +180,7 @@ export default function BookingScreen({ navigation }: Props) {
       } else {
         console.log('Query too short, clearing results');
         setSearchResults([]);
+        setSearchError(null);
       }
     }, 500);
 
@@ -241,7 +257,7 @@ export default function BookingScreen({ navigation }: Props) {
     if (pickup && dropoff) {
       const dist = getDistance(pickup.latitude, pickup.longitude, dropoff.latitude, dropoff.longitude);
       setDistance(dist);
-      setEstimatedFare(8000 + dist * 3200);
+      setEstimatedFare(dist * 100);
       setEstimatedTime(Math.ceil(dist * 3));
     } else {
       setDistance(0);
@@ -344,6 +360,7 @@ export default function BookingScreen({ navigation }: Props) {
               onChangeText={handleSearch}
             />
             {loadingSearch && <ActivityIndicator size="small" color="#4F46E5" />}
+            {searchError && <Text style={{ color: '#EF4444', fontSize: getFontSize(12), marginTop: 4 }}>{searchError}</Text>}
             {recentLocations.length > 0 && (
               <FlatList
                 data={recentLocations}
@@ -409,13 +426,6 @@ export default function BookingScreen({ navigation }: Props) {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{flex:1}}>
               <Text style={[styles.locationButtonText, { color: pickup ? "#FFF" : "#6B7280" }]}>{pickup ? pickup.address : 'Select Pickup Location'}</Text>
             </ScrollView>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => {
-            const temp = pickup;
-            setPickup(dropoff);
-            setDropoff(temp);
-          }} style={styles.swapButton}>
-            <Ionicons name="swap-vertical-outline" size={24} color="#4F46E5" />
           </TouchableOpacity>
           <TouchableOpacity style={[styles.locationButton, dropoff ? styles.locationButtonEnabled : styles.locationButtonDisabled]} onPress={() => { if (pickup) { setSelectionMode('dropoff'); searchInputRef.current?.focus(); } }}>
             <Ionicons name="location" size={20} color={dropoff ? "#FFF" : "#6B7280"} />

@@ -80,7 +80,7 @@ export default function ProfileScreen({ navigation }: Props) {
       <View style={[styles.card, highContrast && styles.cardHighContrast]}>
         <Text style={[styles.sectionTitle, { fontSize: getFontSize(16), color: getColor('#1F2937', '#000') }]}>Account</Text>
 
-        <TouchableOpacity style={styles.row} activeOpacity={0.8} onPress={() => navigation.navigate('Booking' as any)}>
+        <TouchableOpacity style={styles.row} activeOpacity={0.8} onPress={() => navigation.navigate('TripHistory')}>
           <Text style={[styles.rowText, { fontSize: getFontSize(15), color: getColor('#374151', '#000') }]}>Your Bookings</Text>
           <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
         </TouchableOpacity>
