@@ -9,6 +9,14 @@ export default {
     android: {
       package: "com.anonymous.accessibletransportsystem"
     },
+    
+  updates: {
+    url: "https://u.expo.dev/539082f4-4a98-42cb-9616-e7d606f100c0"
+  },
+  runtimeVersion: {
+    policy: "appVersion"
+  },
+
     extra: {
       eas: {
         projectId: "539082f4-4a98-42cb-9616-e7d606f100c0"

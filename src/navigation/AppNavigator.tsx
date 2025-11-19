@@ -13,6 +13,7 @@ import TripHistoryScreen from '../screens/TripHistoryScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import AccessibilityScreen from '../screens/AccessibilityScreen';
 import DriverDashboard from '../screens/DriverDashboard';
+import DriverSettingsScreen from '../screens/DriverSettingsScreen';
 import { Ionicons } from '@expo/vector-icons';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -99,6 +100,7 @@ function DriverStack() {
     >
       <Stack.Screen name="DriverDashboardMain" component={DriverDashboard} options={{ title: 'Driver Dashboard' }} />
       <Stack.Screen name="Trip" component={TripScreen} options={{ title: 'Current Trip', headerBackVisible: false }} />
+      <Stack.Screen name="DriverSettings" component={DriverSettingsScreen} options={{ title: 'Driver Settings' }} />
     </Stack.Navigator>
   );
 }

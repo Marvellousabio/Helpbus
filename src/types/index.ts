@@ -33,6 +33,7 @@ export interface Driver {
   };
   location: Location;
   eta: number;
+  availability?: boolean;
 }
 
 export interface Ride {
@@ -40,7 +41,7 @@ export interface Ride {
   pickup: Location;
   dropoff: Location;
   driver?: Driver;
-  status: 'pending' | 'searching' | 'assigned' | 'arriving' | 'in-progress' | 'completed';
+  status: 'pending' | 'searching' | 'assigned' | 'arriving' | 'in-progress' | 'completed' | 'cancelled';
   accessibilityOptions: {
     wheelchair: boolean;
     entrySide: 'left' | 'right' | 'either';
@@ -113,7 +114,7 @@ export interface RideDocumentData {
   pickup: LocationDocumentData;
   dropoff: LocationDocumentData;
   driverId?: string;
-  status: 'pending' | 'searching' | 'assigned' | 'arriving' | 'in-progress' | 'completed';
+  status: 'pending' | 'searching' | 'assigned' | 'arriving' | 'in-progress' | 'completed' | 'cancelled';
   accessibilityOptions: {
     wheelchair: boolean;
     entrySide: 'left' | 'right' | 'either';
@@ -155,6 +156,7 @@ export type RootStackParamList = {
   Signup: undefined;
   DriverDashboard: undefined;
   DriverDashboardMain: undefined;
+  DriverSettings: undefined;
 };
 
 

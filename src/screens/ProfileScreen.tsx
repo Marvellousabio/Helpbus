@@ -81,9 +81,18 @@ export default function ProfileScreen({ navigation }: Props) {
         <Text style={[styles.sectionTitle, { fontSize: getFontSize(16), color: getColor('#1F2937', '#000') }]}>Account</Text>
 
         <TouchableOpacity style={styles.row} activeOpacity={0.8} onPress={() => navigation.navigate('TripHistory')}>
-          <Text style={[styles.rowText, { fontSize: getFontSize(15), color: getColor('#374151', '#000') }]}>Your Bookings</Text>
+          <Text style={[styles.rowText, { fontSize: getFontSize(15), color: getColor('#374151', '#000') }]}>
+            {user?.role === 'driver' ? 'Your Trips' : 'Your Bookings'}
+          </Text>
           <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
         </TouchableOpacity>
+
+        {user?.role === 'driver' && (
+          <TouchableOpacity style={styles.row} activeOpacity={0.8} onPress={() => navigation.navigate('DriverSettings')}>
+            <Text style={[styles.rowText, { fontSize: getFontSize(15), color: getColor('#374151', '#000') }]}>Driver Settings</Text>
+            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity style={styles.row} activeOpacity={0.8} onPress={() => logout && logout()}>
           <Text style={[styles.rowText, { fontSize: getFontSize(15), color: '#EF4444' }]}>Sign Out</Text>

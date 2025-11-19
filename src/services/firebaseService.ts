@@ -48,6 +48,46 @@ export class FirebaseService {
     });
   }
 
+  static async getDriverByUserId(userId: string): Promise<Driver | null> {
+    const q = query(collection(db, 'drivers'), where('userId', '==', userId));
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0];
+      return { id: doc.id, ...doc.data() } as Driver;
+    }
+    return null;
+  }
+
+  static async updateDriverProfile(userId: string, driverData: Partial<Driver>): Promise<void> {
+    const driver = await this.getDriverByUserId(userId);
+    if (driver) {
+      await updateDoc(doc(db, 'drivers', driver.id), {
+        ...driverData,
+        updatedAt: new Date(),
+      });
+    } else {
+      // Create new driver document
+      const newDriver = {
+        userId,
+        name: driverData.name || '',
+        photo: driverData.photo || '',
+        rating: driverData.rating || 5.0,
+        vehicle: driverData.vehicle || {
+          make: '',
+          model: '',
+          color: '',
+          plate: '',
+          accessibilityFeatures: [],
+        },
+        location: driverData.location || { latitude: 0, longitude: 0 },
+        availability: driverData.availability || false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      await addDoc(collection(db, 'drivers'), newDriver);
+    }
+  }
+
   // Ride operations using Cloud Functions
   static async bookRide(rideData: {
     pickupLocation: Ride['pickup'];
@@ -76,7 +116,20 @@ export class FirebaseService {
 
   static async getRide(rideId: string): Promise<Ride | null> {
     const rideDoc = await getDoc(doc(db, 'rides', rideId));
-    return rideDoc.exists() ? (rideDoc.data() as Ride) : null;
+    if (!rideDoc.exists()) return null;
+
+    const rideData = rideDoc.data() as Ride;
+    const ride: Ride = { ...rideData, id: rideDoc.id };
+
+    // Populate driver if driverId exists
+    if (ride.driverId) {
+      const driverDoc = await getDoc(doc(db, 'drivers', ride.driverId));
+      if (driverDoc.exists()) {
+        ride.driver = driverDoc.data() as Driver;
+      }
+    }
+
+    return ride;
   }
 
   // Storage operations

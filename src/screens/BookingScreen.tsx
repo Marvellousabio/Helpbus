@@ -283,15 +283,31 @@ export default function BookingScreen({ navigation }: Props) {
       const result = await FirebaseService.bookRide({ pickupLocation: pickup!, dropoffLocation: dropoff!, accessibilityOptions });
       setRideId(result.rideId);
 
-      const rideDetails = await FirebaseService.getRide(result.rideId);
-      if (rideDetails && rideDetails.driver) setDriver(rideDetails.driver);
+      // Listen for ride updates to get driver assignment
+      const unsubscribe = FirebaseService.listenToRideUpdates(result.rideId, (ride) => {
+        if (ride && ride.driver) {
+          setDriver(ride.driver);
+          setIsSearching(false);
+          unsubscribe(); // Stop listening once driver is assigned
+          Animated.parallel([
+            Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
+            Animated.spring(scaleAnim, { toValue: 1, tension: 50, friction: 7, useNativeDriver: true }),
+          ]).start();
+        } else if (ride && ride.status === 'cancelled') {
+          setIsSearching(false);
+          setError('No driver available. Please try again.');
+          unsubscribe();
+        }
+      });
 
-      setIsSearching(false);
-
-      Animated.parallel([
-        Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
-        Animated.spring(scaleAnim, { toValue: 1, tension: 50, friction: 7, useNativeDriver: true }),
-      ]).start();
+      // Timeout after 30 seconds if no driver found
+      setTimeout(() => {
+        if (isSearching) {
+          setIsSearching(false);
+          setError('Driver search timed out. Please try again.');
+          unsubscribe();
+        }
+      }, 30000);
     } catch (err: any) {
       setIsSearching(false);
       setError(err.message || 'Failed to book ride');
@@ -421,7 +437,7 @@ export default function BookingScreen({ navigation }: Props) {
         <View style={styles.handle} />
 
         <View style={styles.locationButtonsContainer}>
-          <TouchableOpacity style={[styles.locationButton, pickup ? styles.locationButtonEnabled : styles.locationButtonDisabled]} onPress={getCurrentLocation}>
+          <TouchableOpacity style={[styles.locationButton, pickup ? styles.locationButtonEnabled : styles.locationButtonDisabled]} onPress={() => { setSelectionMode('pickup'); searchInputRef.current?.focus(); }}>
             <Ionicons name="location-outline" size={20} color={pickup ? "#FFF" : "#6B7280"} />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{flex:1}}>
               <Text style={[styles.locationButtonText, { color: pickup ? "#FFF" : "#6B7280" }]}>{pickup ? pickup.address : 'Select Pickup Location'}</Text>
