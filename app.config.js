@@ -2,24 +2,49 @@ import 'dotenv/config';
 
 export default {
   expo: {
-    name: "AccessibleTransportSystem",
+    name: "Mobility",
     slug: "accessible-transport-system",
     version: "1.0.0",
-    projectId: "539082f4-4a98-42cb-9616-e7d606f100c0",
-    android: {
-      package: "com.anonymous.accessibletransportsystem"
+    orientation: "portrait",
+    icon: "./assets/icon.png",
+    userInterfaceStyle: "light",
+    newArchEnabled: true,
+
+    splash: {
+      image: "./assets/splash-icon.png",
+      resizeMode: "contain",
+      backgroundColor: "#ffffff",
     },
-    
-  updates: {
-    url: "https://u.expo.dev/539082f4-4a98-42cb-9616-e7d606f100c0"
-  },
-  runtimeVersion: {
-    policy: "appVersion"
-  },
+
+    ios: {
+      supportsTablet: true,
+    },
+
+    android: {
+      adaptiveIcon: {
+        foregroundImage: "./assets/adaptive-icon.png",
+        backgroundColor: "#ffffff",
+      },
+      edgeToEdgeEnabled: true,
+      predictiveBackGestureEnabled: false,
+      package: "com.anonymous.accessibletransportsystem",
+    },
+
+    web: {
+      favicon: "./assets/favicon.png",
+    },
+
+    updates: {
+      url: "https://u.expo.dev/539082f4-4a98-42cb-9616-e7d606f100c0",
+    },
+
+    runtimeVersion: {
+      policy: "appVersion",
+    },
 
     extra: {
       eas: {
-        projectId: "539082f4-4a98-42cb-9616-e7d606f100c0"
+        projectId: "539082f4-4a98-42cb-9616-e7d606f100c0",
       },
       firebase: {
         apiKey: process.env.FIREBASE_API_KEY,
@@ -28,7 +53,7 @@ export default {
         storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
         messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
         appId: process.env.FIREBASE_APP_ID,
-        GEOAPIFY_API_KEY: process.env.GEOAPIFY_API_KEY
+        GEOAPIFY_API_KEY: process.env.GEOAPIFY_API_KEY,
       },
     },
   },

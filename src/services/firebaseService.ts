@@ -252,9 +252,15 @@ export class FirebaseService {
 
   // Real-time ride operations
   static listenToRideRequests(callback: (rides: Ride[]) => void): () => void {
+    console.log('FirebaseService.listenToRideRequests: Setting up listener for rides with status "searching"');
     const q = query(collection(db, 'rides'), where('status', '==', 'searching'));
     return onSnapshot(q, (querySnapshot) => {
-      const rides = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ride));
+      console.log('FirebaseService.listenToRideRequests: Snapshot received, docs count:', querySnapshot.docs.length);
+      const rides = querySnapshot.docs.map(doc => {
+        const ride = { id: doc.id, ...doc.data() } as Ride;
+        console.log('FirebaseService.listenToRideRequests: Ride data:', ride);
+        return ride;
+      });
       callback(rides);
     });
   }

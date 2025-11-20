@@ -21,7 +21,9 @@ export default function DriverDashboard({ navigation }: Props) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('DriverDashboard: Setting up ride requests listener');
     const unsubscribe = FirebaseService.listenToRideRequests((rides) => {
+      console.log('DriverDashboard: Received ride requests:', rides.length, rides);
       setRideRequests(rides);
       setLoading(false);
     });

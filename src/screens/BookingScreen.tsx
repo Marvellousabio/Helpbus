@@ -49,6 +49,7 @@ export default function BookingScreen({ navigation }: Props) {
   const [driver, setDriver] = useState<Driver | null>(null);
   const [rideId, setRideId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [waitingForDriver, setWaitingForDriver] = useState(false);
 
   // Fare estimate
   const [distance, setDistance] = useState(0);
@@ -266,7 +267,36 @@ export default function BookingScreen({ navigation }: Props) {
     }
   }, [pickup, dropoff]);
 
-  // Find driver: create ride and navigate to DriverSelection
+  // Listen for ride status changes when waiting for driver
+  useEffect(() => {
+    if (waitingForDriver && rideId) {
+      console.log('BookingScreen: Listening for ride status changes for rideId:', rideId);
+      const unsubscribe = FirebaseService.listenToRideUpdates(rideId, (ride) => {
+        if (ride) {
+          console.log('BookingScreen: Ride status update:', ride.status);
+          if (ride.status === 'assigned' && ride.driverId) {
+            // Driver accepted the ride, navigate to payment
+            setWaitingForDriver(false);
+            navigation.navigate('Payment', {
+              fare: estimatedFare,
+              pickup: pickup || undefined,
+              dropoff: dropoff || undefined,
+              rideId,
+              driverId: ride.driverId
+            });
+          } else if (ride.status === 'cancelled') {
+            setWaitingForDriver(false);
+            setRideId(null);
+            Alert.alert('Ride Cancelled', 'Your ride request was cancelled.');
+          }
+        }
+      });
+
+      return unsubscribe;
+    }
+  }, [waitingForDriver, rideId, navigation, estimatedFare, pickup, dropoff]);
+
+  // Find driver: create ride and wait for driver acceptance
   const handleFindDriver = async () => {
     if (!pickup || !dropoff) {
       Alert.alert('Incomplete Selection', 'Please select both pickup and dropoff locations.');
@@ -274,6 +304,7 @@ export default function BookingScreen({ navigation }: Props) {
     }
     console.log('User authenticated:', !!user, 'User ID:', user?.id);
     try {
+      setIsSearching(true);
       const accessibilityOptions: string[] = [];
       if (wheelchair) accessibilityOptions.push('wheelchair');
       if (assistance) accessibilityOptions.push('assistance');
@@ -293,20 +324,38 @@ export default function BookingScreen({ navigation }: Props) {
       });
 
       console.log('bookRide result:', result);
+      setRideId(result.rideId);
+      setWaitingForDriver(true);
+      setIsSearching(false);
 
-      navigation.navigate('DriverSelection', {
-        rideId: result.rideId,
-        fare: estimatedFare,
-        pickup,
-        dropoff,
-        accessibilityOptions
-      });
+      Alert.alert('Ride Requested', 'Your ride request has been sent to available drivers. Please wait for a driver to accept.');
     } catch (error) {
       console.error('Error booking ride:', error);
+      setIsSearching(false);
       Alert.alert('Error', 'Failed to book ride. Please try again.');
     }
   };
 
+
+  const handleCancelRequest = async () => {
+    if (!rideId) return;
+    Alert.alert('Cancel Ride Request', 'Are you sure you want to cancel your ride request?', [
+      { text: 'No' },
+      {
+        text: 'Yes',
+        onPress: async () => {
+          try {
+            await FirebaseService.cancelRide(rideId);
+            setWaitingForDriver(false);
+            setRideId(null);
+            Alert.alert('Request Cancelled', 'Your ride request has been cancelled.');
+          } catch (error) {
+            Alert.alert('Error', 'Failed to cancel ride request.');
+          }
+        }
+      }
+    ]);
+  };
 
   const handleStartTrip = () => {
     if (!driver || !rideId || !user) return;
@@ -461,6 +510,13 @@ export default function BookingScreen({ navigation }: Props) {
         />
 
         {isSearching && <ActivityIndicator size="large" color="#4F46E5" />}
+        {waitingForDriver && (
+          <View style={styles.waitingContainer}>
+            <ActivityIndicator size="large" color="#4F46E5" />
+            <Text style={[styles.waitingText, { fontSize: getFontSize(16) }]}>Finding available drivers...</Text>
+            <Text style={[styles.waitingSubtext, { fontSize: getFontSize(14) }]}>Your ride request has been sent. Please wait for a driver to accept.</Text>
+          </View>
+        )}
         {error && <Text style={{ color: 'red', textAlign: 'center', marginVertical: 8 }}>{error}</Text>}
 
         {driver && (
@@ -490,8 +546,8 @@ export default function BookingScreen({ navigation }: Props) {
               <Text style={styles.cancelButtonText}>Cancel Ride</Text>
             </TouchableOpacity>
           )}
-          <TouchableOpacity style={[styles.primaryButton, isFindDriverDisabled && styles.primaryButtonDisabled]} disabled={isFindDriverDisabled} onPress={driver ? handleStartTrip : handleFindDriver}>
-            <Text style={styles.primaryButtonText}>{driver ? 'Confirm Booking' : 'Find Driver'}</Text>
+          <TouchableOpacity style={[styles.primaryButton, isFindDriverDisabled && styles.primaryButtonDisabled]} disabled={isFindDriverDisabled} onPress={waitingForDriver ? handleCancelRequest : (driver ? handleStartTrip : handleFindDriver)}>
+            <Text style={styles.primaryButtonText}>{waitingForDriver ? 'Cancel Request' : (driver ? 'Confirm Booking' : 'Find Driver')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -538,4 +594,7 @@ const styles = StyleSheet.create({
   driverItem: { marginBottom: 12 },
   selectButton: { backgroundColor: '#10B981', paddingVertical: 12, borderRadius: 8, alignItems: 'center', marginTop: 8 },
   selectButtonText: { color: '#FFF', fontWeight: '700', fontSize: 16 },
+  waitingContainer: { alignItems: 'center', paddingVertical: 20 },
+  waitingText: { fontWeight: '600', color: '#1F2937', marginTop: 16, marginBottom: 8 },
+  waitingSubtext: { color: '#6B7280', textAlign: 'center', lineHeight: 20 },
 });
