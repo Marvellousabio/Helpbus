@@ -266,36 +266,13 @@ export default function BookingScreen({ navigation }: Props) {
     }
   }, [pickup, dropoff]);
 
-  // Find driver
-  const handleFindDriver = async () => {
+  // Find driver: navigate to mock Payment screen first
+  const handleFindDriver = () => {
     if (!pickup || !dropoff) {
       Alert.alert('Incomplete Selection', 'Please select both pickup and dropoff locations.');
       return;
     }
-    setIsSearching(true);
-    setError(null);
-    try {
-      const accessibilityOptions: string[] = [];
-      if (wheelchair) accessibilityOptions.push('wheelchair');
-      if (assistance) accessibilityOptions.push('assistance');
-      accessibilityOptions.push(entrySide);
-
-      const result = await FirebaseService.bookRide({ pickupLocation: pickup!, dropoffLocation: dropoff!, accessibilityOptions });
-      setRideId(result.rideId);
-
-      const rideDetails = await FirebaseService.getRide(result.rideId);
-      if (rideDetails && rideDetails.driver) setDriver(rideDetails.driver);
-
-      setIsSearching(false);
-
-      Animated.parallel([
-        Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
-        Animated.spring(scaleAnim, { toValue: 1, tension: 50, friction: 7, useNativeDriver: true }),
-      ]).start();
-    } catch (err: any) {
-      setIsSearching(false);
-      setError(err.message || 'Failed to book ride');
-    }
+    navigation.navigate('Payment', { fare: estimatedFare, pickup, dropoff });
   };
 
 
