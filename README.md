@@ -2,7 +2,7 @@
 
 Reimagining transportation for people with limb disabilities in Nigeria and beyond.
 
-# 🚀 Overview
+#  Overview
 
 MOBILITY is an accessible transportation system designed specifically for individuals with limb disabilities—amputees, stroke survivors, crutch users, and others with reduced mobility.
 
@@ -13,7 +13,7 @@ Make transportation accessible, affordable, and dignifying.
 
 This project was built initially for a hackathon challenge, with long-term plans for national and continental deployment.
 
-#  💡 Problem We’re Solving
+# Problem We’re Solving
 
 Millions of people with limb disabilities face daily transport challenges:
 
@@ -30,7 +30,7 @@ A mobility gap that limits independence.
 
 MOBILITY closes this gap.
 
-# 🛠 Solution Summary
+# Solution Summary
 
 🔹 Hybrid Transport System
 
@@ -60,7 +60,7 @@ Driver App – optimized disability-friendly routes and assisted-boarding instru
 
 Backend System – dispatching, analytics, safety monitoring
 
-# 📱 Core Features
+# Core Features
 
 Rider App
 
@@ -94,7 +94,7 @@ Accessibility compliance logs
 
 Driver performance and training status
 
-# ⚙️ Tech Stack
+#  Tech Stack
 
 (Customize according to your implementation, below is the standard recommended stack for hackathon version)
 
@@ -118,7 +118,7 @@ Rising urbanization makes demand stronger every year
 
 MOBILITY is the first system designed around Nigerian realities, not imported assumptions.
 
-# 💼 Business Model
+#  Business Model
 
 To keep rides affordable for users, MOBILITY uses a hybrid revenue system:
 
@@ -132,7 +132,7 @@ CSR mobility sponsorships
 
 Hospital/clinic transportation contracts
 
-# 📊 Impact Goals
+# Impact Goals
 
 Improved independence for users
 
@@ -144,7 +144,7 @@ Safer, more dignified transportation
 
 Increased accessibility awareness across Africa
 
-# 🎯 Hackathon Goals
+#  Hackathon Goals
 
 For the hackathon version, the focus is on:
 
