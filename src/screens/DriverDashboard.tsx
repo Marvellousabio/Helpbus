@@ -81,8 +81,10 @@ export default function DriverDashboard({ navigation }: Props) {
       Alert.alert('Ride Accepted', 'You have accepted the ride request.');
       // Navigate to trip
       navigation.navigate('Trip', { ride: { ...ride, driverId: user!.id, status: 'assigned' } });
-    } catch (error) {
-      Alert.alert('Error', 'Failed to accept ride');
+    } catch (error: any) {
+      console.error('Error accepting ride:', error);
+      const errorMessage = error.message === 'Ride is no longer available' ? 'This ride has already been accepted by another driver.' : 'Failed to accept ride. Please try again.';
+      Alert.alert('Error', errorMessage);
     }
   };
 

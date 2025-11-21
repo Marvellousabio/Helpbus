@@ -1,5 +1,5 @@
 import { db, functions, storage, auth } from '../config/firebase';
-import { collection, doc, getDoc, setDoc, updateDoc, query, where, getDocs, onSnapshot, addDoc, orderBy, GeoPoint } from 'firebase/firestore';
+import { collection, doc, getDoc, setDoc, updateDoc, query, where, getDocs, onSnapshot, addDoc, orderBy, GeoPoint, runTransaction } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import * as Notifications from 'expo-notifications';
@@ -257,7 +257,27 @@ export class FirebaseService {
     return onSnapshot(q, (querySnapshot) => {
       console.log('FirebaseService.listenToRideRequests: Snapshot received, docs count:', querySnapshot.docs.length);
       const rides = querySnapshot.docs.map(doc => {
-        const ride = { id: doc.id, ...doc.data() } as Ride;
+        const rideData = doc.data() as any;
+        const ride: Ride = {
+          id: doc.id,
+          pickup: {
+            latitude: rideData.pickup.geopoint.latitude,
+            longitude: rideData.pickup.geopoint.longitude,
+            address: rideData.pickup.address,
+          },
+          dropoff: {
+            latitude: rideData.dropoff.geopoint.latitude,
+            longitude: rideData.dropoff.geopoint.longitude,
+            address: rideData.dropoff.address,
+          },
+          driverId: rideData.driverId,
+          status: rideData.status,
+          accessibilityOptions: rideData.accessibilityOptions,
+          fare: rideData.fare,
+          customerId: rideData.userId,
+          createdAt: rideData.createdAt.toDate(),
+          updatedAt: rideData.updatedAt.toDate(),
+        };
         console.log('FirebaseService.listenToRideRequests: Ride data:', ride);
         return ride;
       });
@@ -266,10 +286,21 @@ export class FirebaseService {
   }
 
   static async acceptRide(rideId: string, driverId: string): Promise<void> {
-    await updateDoc(doc(db, 'rides', rideId), {
-      driverId,
-      status: 'assigned',
-      updatedAt: new Date(),
+    const rideRef = doc(db, 'rides', rideId);
+    await runTransaction(db, async (transaction) => {
+      const rideDoc = await transaction.get(rideRef);
+      if (!rideDoc.exists()) {
+        throw new Error('Ride not found');
+      }
+      const rideData = rideDoc.data();
+      if (rideData?.status !== 'searching') {
+        throw new Error('Ride is no longer available');
+      }
+      transaction.update(rideRef, {
+        driverId,
+        status: 'assigned',
+        updatedAt: new Date(),
+      });
     });
   }
 
@@ -399,4 +430,5 @@ export class FirebaseService {
     });
   }
 }
+
 

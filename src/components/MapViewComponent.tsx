@@ -1,7 +1,24 @@
 import React from 'react';
 import { StyleSheet, View, Text, Dimensions, Platform } from 'react-native';
-import MapView, { Marker, Polyline } from 'react-native-maps';
+import Constants from 'expo-constants';
 import { Location } from '../types';
+
+let MapView: any, Marker: any, Polyline: any, MapContainer: any, TileLayer: any, MarkerLeaflet: any, Popup: any;
+if (Platform.OS === 'web') {
+  require('leaflet/dist/leaflet.css');
+  import('react-leaflet').then(leaflet => {
+    MapContainer = leaflet.MapContainer;
+    TileLayer = leaflet.TileLayer;
+    MarkerLeaflet = leaflet.Marker;
+    Popup = leaflet.Popup;
+  });
+} else {
+  import('react-native-maps').then(maps => {
+    MapView = maps.default;
+    Marker = maps.Marker;
+    Polyline = maps.Polyline;
+  });
+}
 
 interface Props {
   pickup: Location | null;
@@ -37,6 +54,12 @@ export default function MapViewComponent({
   onDropoffDragEnd,
   region,
 }: Props) {
+  console.log('MapViewComponent: Platform.OS:', Platform.OS);
+  console.log('MapViewComponent: Rendering map with pickup:', pickup, 'dropoff:', dropoff);
+
+  const geoapifyApiKey = Constants.expoConfig?.extra?.firebase?.GEOAPIFY_API_KEY;
+  console.log('MapViewComponent: Geoapify API Key available:', !!geoapifyApiKey);
+
   // ✅ Default fallback region (Lagos for testing)
   const defaultRegion = {
     latitude: pickup?.latitude || 6.5244,
@@ -60,13 +83,50 @@ export default function MapViewComponent({
         ]
       : [];
 
+  if (Platform.OS === 'web') {
+    return (
+      <View style={styles.container}>
+        {MapContainer && geoapifyApiKey ? (
+          <MapContainer
+            center={[defaultRegion.latitude, defaultRegion.longitude]}
+            zoom={13}
+            style={{ height: '100%', width: '100%' }}
+            onClick={(e: any) => onMapPress?.({ latitude: e.latlng.lat, longitude: e.latlng.lng })}
+          >
+            <TileLayer
+              url={`https://maps.geoapify.com/v1/tile/osm-bright/{z}/{x}/{y}.png?apiKey=${geoapifyApiKey}`}
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
+            {pickup && typeof pickup.latitude === 'number' && typeof pickup.longitude === 'number' && (
+              <MarkerLeaflet position={[pickup.latitude, pickup.longitude]}>
+                <Popup>Pickup Location</Popup>
+              </MarkerLeaflet>
+            )}
+            {dropoff && typeof dropoff.latitude === 'number' && typeof dropoff.longitude === 'number' && (
+              <MarkerLeaflet position={[dropoff.latitude, dropoff.longitude]}>
+                <Popup>Drop-off Location</Popup>
+              </MarkerLeaflet>
+            )}
+            {driverLocation && typeof driverLocation.latitude === 'number' && typeof driverLocation.longitude === 'number' && (
+              <MarkerLeaflet position={[driverLocation.latitude, driverLocation.longitude]}>
+                <Popup>Driver Location</Popup>
+              </MarkerLeaflet>
+            )}
+          </MapContainer>
+        ) : (
+          <Text>Map not available - Geoapify API key required</Text>
+        )}
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <MapView
         style={styles.map}
         region={region || defaultRegion}
-        showsUserLocation
-        showsMyLocationButton
+        showsUserLocation={Platform.OS !== 'web'}
+        showsMyLocationButton={Platform.OS !== 'web'}
         loadingEnabled
         moveOnMarkerPress={false}
         onPress={(e) => onMapPress?.(e.nativeEvent.coordinate)}
@@ -129,7 +189,7 @@ export default function MapViewComponent({
         )}
 
         {/* ✅ Route line */}
-        {routeCoordinates.length > 0 && (
+        {routeCoordinates.length > 0 && Platform.OS !== 'web' && (
           <Polyline
             coordinates={routeCoordinates}
             strokeColor="#4F46E5"

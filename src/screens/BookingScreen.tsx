@@ -1,9 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, ActivityIndicator, TextInput, FlatList, Alert, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, ActivityIndicator, TextInput, FlatList, Alert, Animated, Platform } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import MapView from 'react-native-maps';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+let MapView: any;
+if (Platform.OS !== 'web') {
+  import('react-native-maps').then(module => {
+    MapView = module.default;
+  });
+}
 import * as Location from 'expo-location';
 import { BookingStackParamList, Location as LocationType, Ride, Driver } from '../types';
 import { useAccessibility } from '../context/AccessibilityContext';
@@ -450,17 +456,19 @@ export default function BookingScreen({ navigation }: Props) {
                 renderItem={({ item }) => (
                   <TouchableOpacity onPress={() => handleSelectLocation(item)} style={styles.resultItem}>
                     <Text style={{ fontSize: getFontSize(14), color: getColor('#1F2937', '#000') }}>{item.formatted}</Text>
-                    <MapView
-                      style={{ height: 60, width: '100%', marginTop: 4 }}
-                      region={{
-                        latitude: item.lat,
-                        longitude: item.lon,
-                        latitudeDelta: 0.01,
-                        longitudeDelta: 0.01,
-                      }}
-                      scrollEnabled={false}
-                      zoomEnabled={false}
-                    />
+                    {Platform.OS !== 'web' && (
+                      <MapView
+                        style={{ height: 60, width: '100%', marginTop: 4 }}
+                        region={{
+                          latitude: item.lat,
+                          longitude: item.lon,
+                          latitudeDelta: 0.01,
+                          longitudeDelta: 0.01,
+                        }}
+                        scrollEnabled={false}
+                        zoomEnabled={false}
+                      />
+                    )}
                   </TouchableOpacity>
                 )}
                 ListHeaderComponent={<Text style={{ fontSize: getFontSize(12), color: '#6B7280', marginBottom: 4 }}>Search Results</Text>}
