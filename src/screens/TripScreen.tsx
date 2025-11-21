@@ -189,7 +189,11 @@ export default function TripScreen({ navigation, route }: Props) {
   const statusInfo = ride ? getStatusInfo(ride) : { icon: 'time', title: 'Error', subtitle: 'Error', color: '#6B7280' };
 
   const handleCompleteTrip = () => {
-    navigation.navigate('Home');
+    if (user?.role === 'driver') {
+      navigation.navigate('DriverDashboard');
+    } else {
+      navigation.navigate('Home');
+    }
   };
 
   const handleStatusUpdate = async (newStatus: Ride['status']) => {
@@ -197,11 +201,15 @@ export default function TripScreen({ navigation, route }: Props) {
     try {
       await FirebaseService.updateRideStatus(ride.id, newStatus);
       // Send notification to the other party
-      const recipientId = user?.role === 'driver' ? ride.customerId : ride.driverId!;
+      const recipientId = user?.role === 'driver' ? ride.customerId : ride.driverId;
+      if (!recipientId) {
+        console.warn('No recipient ID for notification');
+        return;
+      }
       const notificationType = newStatus === 'arriving' ? 'status_update' :
-                               newStatus === 'in-progress' ? 'status_update' : 'status_update';
+                                newStatus === 'in-progress' ? 'status_update' : 'status_update';
       const body = newStatus === 'arriving' ? 'Driver has arrived' :
-                    newStatus === 'in-progress' ? 'Ride has started' : 'Ride completed';
+                     newStatus === 'in-progress' ? 'Ride has started' : 'Ride completed';
       await FirebaseService.sendNotification({
         userId: recipientId,
         title: 'Ride Update',
