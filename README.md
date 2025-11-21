@@ -179,20 +179,93 @@ Team Member	UX / UI
 Team Member	Backend
 Team Member	Research
 
-🧪 Running Locally
-Frontend
-cd frontend
-npm install
-npm run dev
+## 🚀 Getting Started
 
-Backend
-cd backend
-npm install
-npm start
+### For Developers
 
-Environment Variables
+#### Prerequisites
+- Node.js (version 18 or higher)
+- Expo CLI: Install globally with `npm install -g @expo/cli`
+- Firebase CLI: Install globally with `npm install -g firebase-tools`
+- A Firebase project (for backend services)
+- Geoapify API key (for location services)
 
-Create a .env file in both frontend/ and backend/ folders.
+#### Installation
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd mobility
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+#### Setup
+1. Copy the environment file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Fill in your Firebase configuration and Geoapify API key in `.env`:
+   - Obtain Firebase config from your Firebase project settings
+   - Get Geoapify API key from https://www.geoapify.com/
+
+3. Set up Firebase project:
+   - Create a project at https://console.firebase.google.com/
+   - Enable Authentication, Firestore Database, Storage, and Functions
+   - Configure Firestore rules and indexes as needed
+
+4. (Optional) Deploy Cloud Functions for full functionality:
+   ```bash
+   cd functions
+   npm install
+   firebase login
+   firebase use --add  # Select your project
+   firebase deploy --only functions
+   ```
+
+#### Running the App
+- Start the Expo development server:
+  ```bash
+  npm start
+  ```
+  This will open the Expo DevTools in your browser.
+
+- Run on specific platforms:
+  - Web: `npm run web`
+  - Android: `npm run android`
+  - iOS: `npm run ios` (requires macOS)
+
+- For production builds, use EAS Build:
+  ```bash
+  npx eas build --platform android
+  npx eas build --platform ios
+  ```
+
+### For Users (Online Access)
+
+#### Accessing the Web Version
+The app is available as a Progressive Web App (PWA) that can be accessed directly in your web browser at the deployed URL (e.g., https://mobility.vercel.app). No installation required - just visit the URL and use it like a native app.
+
+#### Downloading Mobile Apps
+Mobile versions are available on app stores:
+- [Google Play Store](link-to-play-store)
+- [Apple App Store](link-to-app-store)
+
+#### Getting Started with the App
+1. **Sign Up/Login**: Create an account or log in with existing credentials.
+2. **Set Accessibility Preferences**: Specify your mobility needs (e.g., wheelchair, crutches, amputee).
+3. **Book a Ride**:
+   - Enter pickup and drop-off locations
+   - Choose between fixed-route or on-demand service
+   - Select a suitable driver/vehicle
+4. **Track Your Ride**: Monitor real-time location and ETA.
+5. **Payment**: Secure in-app payments upon trip completion.
+6. **Support**: Use in-app chat for assistance or emergencies.
+
+For any issues or questions, contact support at ayekudemilade43@gmail.com.
 
 # 🧱 Roadmap
 Phase 1: Hackathon Prototype
