@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Animated, Alert, 
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { RootStackParamList, Ride } from '../types';
+import { RootStackParamList, Ride, User } from '../types';
 import { useAccessibility } from '../context/AccessibilityContext';
 import MapViewComponent from '../components/MapViewComponent';
 import DriverCard from '../components/DriverCard';
@@ -25,10 +25,10 @@ const { height } = Dimensions.get('window');
 export default function TripScreen({ navigation, route }: Props) {
   const { ride: initialRide, rideId } = route.params;
   const { getFontSize, getColor, highContrast } = useAccessibility();
-  const { user } = useAuth();
+  const { user } = useAuth() as { user: User | null };
 
   const [ride, setRide] = useState<Ride | null>(initialRide || null);
-  const [currentStatus, setCurrentStatus] = useState(initialRide?.status || 'searching');
+  const [currentStatus, setCurrentStatus] = useState<Ride['status']>(initialRide?.status || 'searching');
   const [progress, setProgress] = useState(0);
   const [chatVisible, setChatVisible] = useState(false);
   const [mapRegion, setMapRegion] = useState<any>(
@@ -65,32 +65,36 @@ export default function TripScreen({ navigation, route }: Props) {
 
   useEffect(() => {
     if (!ride) return;
-    const unsubscribe = FirebaseService.listenToRideUpdates(ride.id, async (updatedRide) => {
-      if (updatedRide) {
-        const prevStatus = currentStatus;
-        setRide(updatedRide);
-        setCurrentStatus(updatedRide.status);
-        // Update progress based on status
-        switch (updatedRide.status) {
-          case 'assigned':
+
+    const handleRideUpdate = async (updatedRide: Ride | null) => {
+      if (!updatedRide) return;
+      const prevStatus = currentStatus;
+      setRide(updatedRide);
+      setCurrentStatus(updatedRide.status);
+      // Update progress based on status
+      switch (updatedRide.status) {
+          case 'assigned': {
             setProgress(0);
             if (user?.role === 'customer' && prevStatus !== 'assigned') {
               await FirebaseService.scheduleLocalNotification('Driver Found!', `${updatedRide.driver?.name} is on the way.`);
             }
             break;
-          case 'arriving':
+          }
+          case 'arriving': {
             setProgress(33);
             if (user?.role === 'customer' && prevStatus !== 'arriving') {
               await FirebaseService.scheduleLocalNotification('Driver Arriving', 'Your driver is almost here.');
             }
             break;
-          case 'in-progress':
+          }
+          case 'in-progress': {
             setProgress(66);
             if (user?.role === 'customer' && prevStatus !== 'in-progress') {
               await FirebaseService.scheduleLocalNotification('Ride Started', 'Enjoy your trip!');
             }
             break;
-          case 'completed':
+          }
+          case 'completed': {
             setProgress(100);
             console.log('TripScreen: Status changed to completed for ride:', updatedRide.id, 'user role:', user?.role);
             if (user?.role === 'customer' && prevStatus !== 'completed') {
@@ -149,12 +153,22 @@ export default function TripScreen({ navigation, route }: Props) {
                 console.error('TripScreen: Error saving ride history:', error);
               }
             } else {
-              console.log('TripScreen: Skipping history save - driver:', !!updatedRide.driver, 'user:', !!user, 'user.role:', user?.role);
+              console.log('TripScreen: Skipping history save - driver:', !!updatedRide.driver, 'user:', !!user, 'user.role:', (user as User | null)?.role);
             }
             break;
+          }
+          case 'cancelled': {
+            if (user?.role === 'customer' && prevStatus !== 'cancelled') {
+              await FirebaseService.scheduleLocalNotification('Ride Cancelled', 'Your ride has been cancelled.');
+            }
+            break;
+          }
+          default:
+            break;
         }
-      }
-    });
+    };
+
+    const unsubscribe = FirebaseService.listenToRideUpdates(ride.id, handleRideUpdate);
 
     return unsubscribe;
   }, [ride?.id, user, currentStatus]);
@@ -163,7 +177,7 @@ export default function TripScreen({ navigation, route }: Props) {
     if (!ride) return;
     const unsubscribe = FirebaseService.listenToDriverLocation(ride.id, (location) => {
       if (location && ride.driver && typeof location.latitude === 'number' && typeof location.longitude === 'number') {
-        setRide((prev) => prev ? { ...prev, driver: { ...prev.driver!, location } } : prev);
+        setRide((prev: Ride | null) => prev ? { ...prev, driver: { ...prev.driver!, location } } : prev);
         // Update map region to follow driver during active trip
         if (currentStatus === 'assigned' || currentStatus === 'arriving' || currentStatus === 'in-progress') {
           setMapRegion({
@@ -217,6 +231,13 @@ export default function TripScreen({ navigation, route }: Props) {
           subtitle: 'Thank you for riding with us!',
           color: '#10B981',
         };
+      case 'cancelled':
+        return {
+          icon: 'close-circle' as const,
+          title: 'Ride Cancelled',
+          subtitle: 'Your ride has been cancelled',
+          color: '#EF4444',
+        };
       default:
         return {
           icon: 'time' as const,
@@ -227,7 +248,7 @@ export default function TripScreen({ navigation, route }: Props) {
     }
   };
 
-  const statusInfo = ride ? getStatusInfo(ride) : { icon: 'time', title: 'Error', subtitle: 'Error', color: '#6B7280' };
+  const statusInfo = ride ? getStatusInfo(ride) : { icon: 'time' as const, title: 'Error', subtitle: 'Error', color: '#6B7280' };
 
   const handleCompleteTrip = () => {
     console.log('TripScreen: handleCompleteTrip called, user role:', user?.role);
@@ -423,7 +444,7 @@ export default function TripScreen({ navigation, route }: Props) {
               </Text>
               <Ionicons name="home" size={20} color="#FFF" />
             </TouchableOpacity>
-          ) : user?.role === 'customer' && currentStatus !== 'completed' ? (
+          ) : user?.role === 'customer' && currentStatus !== ('completed' as Ride['status']) ? (
             <TouchableOpacity
               style={styles.cancelButton}
               onPress={() => {

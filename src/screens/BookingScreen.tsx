@@ -34,7 +34,7 @@ interface Props {
 }
 
 const { height } = Dimensions.get('window');
-const GEOAPIFY_API_KEY = Constants.expoConfig?.extra?.firebase?.GEOAPIFY_API_KEY
+const GOOGLE_MAPS_API_KEY = Constants.expoConfig?.web?.googleMapsApiKey
 
 export default function BookingScreen({ navigation }: Props) {
   const { getFontSize, getColor, highContrast } = useAccessibility();
@@ -134,9 +134,17 @@ export default function BookingScreen({ navigation }: Props) {
       if (selectionMode && currentLocation && searchQuery.length === 0) {
         const fetchNearby = async () => {
           try {
-            const url = `https://api.geoapify.com/v1/geocode/search?text=&lat=${currentLocation.latitude}&lon=${currentLocation.longitude}&limit=5&apiKey=${GEOAPIFY_API_KEY}`;
+            const apiKey = Constants.expoConfig?.extra?.GEOAPIFY_API_KEY;
+            if (!apiKey) {
+              setNearbySuggestions([]);
+              return;
+            }
+            const url = `https://api.geoapify.com/v1/geocode/search?text=&lat=${currentLocation.latitude}&lon=${currentLocation.longitude}&limit=5&apiKey=${apiKey}`;
             const response = await fetch(url);
             const data = await response.json();
+            if (data.error) {
+              throw new Error(data.error.message || 'API error');
+            }
             const results = data.features?.map((f: any) => ({
               lat: f.geometry.coordinates[1],
               lon: f.geometry.coordinates[0],
@@ -178,16 +186,17 @@ export default function BookingScreen({ navigation }: Props) {
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       if (searchQuery.length >= 3) {
-        if (!GEOAPIFY_API_KEY) {
+        const apiKey = Constants.expoConfig?.extra?.GEOAPIFY_API_KEY;
+        if (!apiKey) {
           setSearchError('Search API key not configured');
           setSearchResults([]);
           setLoadingSearch(false);
           return;
         }
-        console.log('API Key present:', !!GEOAPIFY_API_KEY);
+        console.log('API Key present:', !!apiKey);
         setLoadingSearch(true);
         setSearchError(null);
-        const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(searchQuery)}&limit=5&apiKey=${GEOAPIFY_API_KEY}`;
+        const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(searchQuery)}&limit=5&apiKey=${apiKey}`;
         console.log('Fetching from URL:', url);
         fetch(url)
           .then(response => {
@@ -203,10 +212,10 @@ export default function BookingScreen({ navigation }: Props) {
               throw new Error(data.error.message || 'API returned an error');
             }
             const results = data.features?.map((f: any) => ({
-        lat: f.geometry.coordinates[1],
-        lon: f.geometry.coordinates[0],
-        formatted: f.properties.formatted,
-      })) || [];
+              lat: f.geometry.coordinates[1],
+              lon: f.geometry.coordinates[0],
+              formatted: f.properties.formatted,
+            })) || [];
             setSearchResults(results);
             console.log('Set searchResults to:', results);
           })
@@ -387,25 +396,39 @@ export default function BookingScreen({ navigation }: Props) {
       return;
     }
     console.log('BookingScreen: Showing cancel request alert');
-    Alert.alert('Cancel Ride Request', 'Are you sure you want to cancel your ride request?', [
-      { text: 'No', onPress: () => console.log('BookingScreen: User cancelled cancel action') },
-      {
-        text: 'Yes',
-        onPress: async () => {
-          console.log('BookingScreen: User confirmed cancel, calling cancelRide');
-          try {
-            console.log('BookingScreen: Calling cancelRide for rideId:', rideId);
-            await FirebaseService.cancelRide(rideId);
-            console.log('BookingScreen: cancelRide successful, resetting states');
-            resetBookingStates();
-            Alert.alert('Request Cancelled', 'Your ride request has been cancelled.');
-          } catch (error) {
-            console.log('BookingScreen: cancelRide failed:', error);
-            Alert.alert('Error', 'Failed to cancel ride request.');
-          }
+
+    const confirmCancel = Platform.OS === 'web'
+      ? window.confirm('Are you sure you want to cancel your ride request?')
+      : await new Promise<boolean>((resolve) => {
+          Alert.alert('Cancel Ride Request', 'Are you sure you want to cancel your ride request?', [
+            { text: 'No', onPress: () => resolve(false) },
+            { text: 'Yes', onPress: () => resolve(true) }
+          ]);
+        });
+
+    if (confirmCancel) {
+      console.log('BookingScreen: User confirmed cancel, calling cancelRide');
+      try {
+        console.log('BookingScreen: Calling cancelRide for rideId:', rideId);
+        await FirebaseService.cancelRide(rideId);
+        console.log('BookingScreen: cancelRide successful, resetting states');
+        resetBookingStates();
+        if (Platform.OS !== 'web') {
+          Alert.alert('Request Cancelled', 'Your ride request has been cancelled.');
+        } else {
+          alert('Request Cancelled: Your ride request has been cancelled.');
+        }
+      } catch (error) {
+        console.log('BookingScreen: cancelRide failed:', error);
+        if (Platform.OS !== 'web') {
+          Alert.alert('Error', 'Failed to cancel ride request.');
+        } else {
+          alert('Error: Failed to cancel ride request.');
         }
       }
-    ]);
+    } else {
+      console.log('BookingScreen: User cancelled cancel action');
+    }
   };
 
   const handleStartTrip = () => {
@@ -582,19 +605,35 @@ export default function BookingScreen({ navigation }: Props) {
           {driver && (
             <TouchableOpacity
               style={styles.cancelButton}
-              onPress={() => Alert.alert('Cancel Ride', 'Are you sure you want to cancel this ride?', [
-                { text: 'No' },
-                { text: 'Yes', onPress: async () => {
+              onPress={async () => {
+                const confirmCancel = Platform.OS === 'web'
+                  ? window.confirm('Are you sure you want to cancel this ride?')
+                  : await new Promise<boolean>((resolve) => {
+                      Alert.alert('Cancel Ride', 'Are you sure you want to cancel this ride?', [
+                        { text: 'No', onPress: () => resolve(false) },
+                        { text: 'Yes', onPress: () => resolve(true) }
+                      ]);
+                    });
+
+                if (confirmCancel) {
                   try {
                     await FirebaseService.cancelRide(rideId!);
                     setDriver(null);
                     setRideId(null);
-                    Alert.alert('Ride Cancelled', 'Your ride has been cancelled.');
+                    if (Platform.OS !== 'web') {
+                      Alert.alert('Ride Cancelled', 'Your ride has been cancelled.');
+                    } else {
+                      alert('Ride Cancelled: Your ride has been cancelled.');
+                    }
                   } catch (error) {
-                    Alert.alert('Error', 'Failed to cancel ride.');
+                    if (Platform.OS !== 'web') {
+                      Alert.alert('Error', 'Failed to cancel ride.');
+                    } else {
+                      alert('Error: Failed to cancel ride.');
+                    }
                   }
-                }}
-              ])}
+                }
+              }}
             >
               <Text style={styles.cancelButtonText}>Cancel Ride</Text>
             </TouchableOpacity>

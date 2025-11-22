@@ -9,12 +9,17 @@ import Constants from "expo-constants";
 
 const extra = (Constants.expoConfig as any)?.extra ?? (Constants.manifest as any)?.extra;
 
+console.log("Extra config:", extra);
+
 if (!extra || !extra.firebase) {
   throw new Error("Firebase configuration not found in Expo Constants.");
 }
 
+console.log("Firebase config:", extra.firebase);
 
 const firebaseConfig = extra.firebase;
+
+console.log("Initializing Firebase with config:", firebaseConfig);
 
 const app = initializeApp(firebaseConfig);
 

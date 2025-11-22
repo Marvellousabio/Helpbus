@@ -57,7 +57,7 @@ export default function MapViewComponent({
   console.log('MapViewComponent: Platform.OS:', Platform.OS);
   console.log('MapViewComponent: Rendering map with pickup:', pickup, 'dropoff:', dropoff);
 
-  const geoapifyApiKey = Constants.expoConfig?.extra?.firebase?.GEOAPIFY_API_KEY;
+  const geoapifyApiKey = Constants.expoConfig?.extra?.GEOAPIFY_API_KEY;
   console.log('MapViewComponent: Geoapify API Key available:', !!geoapifyApiKey);
 
   // ✅ Default fallback region (Lagos for testing)
@@ -125,11 +125,11 @@ export default function MapViewComponent({
       <MapView
         style={styles.map}
         region={region || defaultRegion}
-        showsUserLocation={Platform.OS !== 'web'}
-        showsMyLocationButton={Platform.OS !== 'web'}
+        showsUserLocation={(Platform.OS as any) !== 'web'}
+        showsMyLocationButton={(Platform.OS as any) !== 'web'}
         loadingEnabled
         moveOnMarkerPress={false}
-        onPress={(e) => onMapPress?.(e.nativeEvent.coordinate)}
+        onPress={(e: any) => onMapPress?.(e.nativeEvent.coordinate)}
       >
         {/* ✅ Pickup Marker */}
         {pickup && typeof pickup.latitude === 'number' && typeof pickup.longitude === 'number' && (
@@ -143,7 +143,7 @@ export default function MapViewComponent({
             draggable={editable}
             pinColor="#10B981"
             onPress={onPickupPress}
-            onDragEnd={(e) => onPickupDragEnd?.(e.nativeEvent.coordinate)}
+            onDragEnd={(e: any) => onPickupDragEnd?.(e.nativeEvent.coordinate)}
             accessibilityLabel="Pickup location marker"
           >
             <View style={styles.pickupMarker}>
@@ -164,7 +164,7 @@ export default function MapViewComponent({
             draggable={editable}
             pinColor="#EF4444"
             onPress={onDropoffPress}
-            onDragEnd={(e) => onDropoffDragEnd?.(e.nativeEvent.coordinate)}
+            onDragEnd={(e: any) => onDropoffDragEnd?.(e.nativeEvent.coordinate)}
             accessibilityLabel="Drop-off location marker"
           >
             <View style={styles.dropoffMarker}>
@@ -189,7 +189,7 @@ export default function MapViewComponent({
         )}
 
         {/* ✅ Route line */}
-        {routeCoordinates.length > 0 && Platform.OS !== 'web' && (
+        {routeCoordinates.length > 0 && (Platform.OS as any) !== 'web' && (
           <Polyline
             coordinates={routeCoordinates}
             strokeColor="#4F46E5"

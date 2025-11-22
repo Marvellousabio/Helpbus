@@ -1,40 +1,25 @@
 import 'dotenv/config';
 
-export default {
-  expo: {
-    name: "Mobility",
-    slug: "mobility",
-    version: "1.0.0",
-    android: {
-      package: "com.anonymous.accessibletransportsystem"
+export default ({ config }) => ({
+  ...config,
+  name: "Mobility",
+  slug: "mobility",
+  version: "1.0.0",
+  android: { package: "com.anonymous.accessibletransportsystem" },
+  ios: { bundleIdentifier: "com.anonymous.accessibletransportsystem" },
+  web: { googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY },
+  updates: { url: "https://u.expo.dev/d4495b37-b565-4693-8340-d54709fd0806" },
+  runtimeVersion: { policy: "appVersion" },
+  extra: {
+    eas: { projectId: "d4495b37-b565-4693-8340-d54709fd0806" },
+    firebase: {
+      apiKey: process.env.FIREBASE_API_KEY,
+      authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+      appId: process.env.FIREBASE_APP_ID
     },
-     ios: {
-    bundleIdentifier: "com.anonymous.accessibletransportsystem"
-  },
-    web: {
-      googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY
-    },
-  updates: {
-    url: "https://u.expo.dev/d4495b37-b565-4693-8340-d54709fd0806"
-  },
-  runtimeVersion: {
-    policy: "appVersion"
-  },
-
-    extra: {
-      eas: {
-        projectId: "d4495b37-b565-4693-8340-d54709fd0806"
-      },
-      firebase: {
-        apiKey: process.env.FIREBASE_API_KEY,
-        authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-        messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-        appId: process.env.FIREBASE_APP_ID,
-        GEOAPIFY_API_KEY: process.env.GEOAPIFY_API_KEY,
-        GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY
-      },
-    },
-  },
-};
+    GEOAPIFY_API_KEY: process.env.GEOAPIFY_API_KEY
+  }
+});
