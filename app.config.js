@@ -3,7 +3,7 @@ import 'dotenv/config';
 export default {
   expo: {
     name: "Mobility",
-    slug: "accessible-transport-system",
+    slug: "mobility",
     version: "1.0.0",
     android: {
       package: "com.anonymous.accessibletransportsystem"
